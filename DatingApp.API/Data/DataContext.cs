@@ -17,5 +17,7 @@ namespace DatingApp.API.Data
         //deretter forteller vi datacontext klassen om våre entities, med value som type i dbsettet og legger ved dataapp.models
         // Values er navnet som brukes til å representere tabellnavnet som opprettes når vi scafolder vår database
         public DbSet<Value> Values {get;  set;} 
+
+        public DbSet<User> Users {get; set;} // må deretter legge til migration også i terminal for API
     }
 }

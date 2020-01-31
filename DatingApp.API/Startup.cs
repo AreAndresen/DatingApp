@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DatingApp.API.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DatingApp.API
 {
@@ -34,6 +37,19 @@ namespace DatingApp.API
             services.AddDbContext<DataContext>(x => x.UseSqlite
             (Configuration.GetConnectionString("DefaultConnection"))); //Sqlite må vi adde som entity. Her må vi inn i ctrl, shift, p så Nuget add osv...(Se DatingApp.API)
             services.AddCors();
+            services.AddScoped<IAuthRepository, AuthRepository>(); //er da tilgjengelig for injection i klasser i resten av app i controllere osv - for auth repo
+            // spesifiserer autenticationscheme som applikasjonen skal benytte - MÅ deretter fortelle applikasjonen om dette under
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme) //trenger denne for å legge til servicen for Token generering og validering 
+                .AddJwtBearer(options => {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
+                        .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
+                        ValidateIssuer = false, //localhost
+                        ValidateAudience = false //localhost
+                    };
+                });
 
             services.AddControllers();
 
@@ -54,6 +70,7 @@ namespace DatingApp.API
 
             app.UseCors(x => x.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 
+            app.UseAuthentication(); // forteller applikasjonen om token autenticationscheme metoden vi lagde overr
             app.UseAuthorization();
 
             // metode som benyttes når vi starter opp og mapper controller endpoints, slik at API vet hvordan å route requests

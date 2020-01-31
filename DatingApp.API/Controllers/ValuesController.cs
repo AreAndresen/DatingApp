@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DatingApp.API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,9 +14,10 @@ namespace DatingApp.API.Controllers
 
     // controller er bare et placeholder navn som representerer controlleren og route path som kommer inn her (f.eks Values under), dette har med mapping og routing til en request
     // f.eks http:localhost:5000/api/values - her tar vi første del av controllernavnet og dette er routen vi skal treffe
+    [Authorize] //gjør at det må være en authorisert request http
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class ValuesController : ControllerBase // benytter controllerbase fordi vi ikke benytter MVC, bare MC fordi Angular lager V (viewet vårt)
     {
         private readonly DataContext _context; //får denne til å bruke i klassen
         public ValuesController(DataContext context) //hurtig ctor - må enable context til å være available gjennom hele klassen ved å markere context og ctrl . og initialize
@@ -43,6 +45,7 @@ namespace DatingApp.API.Controllers
 
 
         // GET api/values/5 - Merk har med en ID her og slik er metoden designet for å ta inn en int ID
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetValue(int id) //ActionResult<string> Get(int id) // gammel kode
         {
