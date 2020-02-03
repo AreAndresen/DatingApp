@@ -1,0 +1,20 @@
+<div class="container mt-5">
+  <div *ngIf="!registerMode" style="text-align: center"> <!--Legger ved en statement som gjør at den eller den under vises hvis registermode er av/på-->
+    <h1>Find your match</h1>
+    <p class="lead">Come on in to view your matches...! All you need to do is sign up!</p>
+    <div class="text-center">
+      <button class="btn btn-primary btn-lg mr-2" (click)="registerToggle()">Register</button> <!--registerToogle() er metode for å aktivere register mode-->
+      <button class="btn btn-info btn-lg">Learn more</button>
+    </div>
+  </div>
+
+<div *ngIf="registerMode"><!--Vises bare om register mode er aktivert-->
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-4">
+          <app-register (cancelRegister)="cancelRegisterMode($event)"></app-register> <!--Register er nå child-component til vår home-component - [valuesFro...] er måte å sende data ned til child-->
+      </div>                                                      <!--ValueFromHome er inputverdien og values inneholder daten vi sender ned til register component-->
+                                                                  <!--I motsetning til input [] trenger output () - eventen kommer fra register-componenten, en metode inne i home-->
+    </div>
+  </div>
+</div>

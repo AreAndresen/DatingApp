@@ -30,6 +30,7 @@ namespace DatingApp.API.Controllers
         // GET api/values - f.eks hente ulike verdier fra vår API 
         // Merk har med et array her og slik er metoden designet for å ta inn et values array og returnere string-array med verdiene i dette
         // ActionResult<IEnumerable<string>> Get() - Denne gjorde det bare mulig med string så byttet ut med IActionResult
+        [AllowAnonymous] // kan med denne hentes uten authorization
         [HttpGet]
         public async Task<IActionResult> GetValues() ////Legger til async Task<...> for å kunne kjøre flere tråder med spørringer samtidig 
         {
