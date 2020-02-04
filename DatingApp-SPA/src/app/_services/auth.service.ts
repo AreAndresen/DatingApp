@@ -26,6 +26,6 @@ export class AuthService {
 
   // ny metode for register - Her trenger vi ikke Token fordi vi ikke trenger authorization da denne er innvilget i login
   register(model: any) {
-    return this.http.post(this.baseUrl + 'register', model); // http.post er en observable, må subscribes til, gjør vi i register.component.ts
+    return this.http.post(this.baseUrl + 'register', model); // http  observable, må subscribes, gjør vi i register.component.ts
   }
 }

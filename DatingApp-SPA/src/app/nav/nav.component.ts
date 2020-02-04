@@ -22,7 +22,7 @@ export class NavComponent implements OnInit {
     this.authService.login(this.model).subscribe(next => {
       console.log('Logged in successfully');
     }, error => {
-      console.log('Failed to login');
+      console.log(error);
     }); // authService.login returnerer en observable og man må alltid subscribe på observables
   }
 
@@ -30,13 +30,13 @@ export class NavComponent implements OnInit {
   // dette skal rendres for å vise velkommen msg om bruker er logget inn eller ikke
   loggedIn() {
     const token = localStorage.getItem('token');
-    return !!token; //!! er en kort versjon for en if metode
+    return !!token; // !! er en kort versjon for en if metode
   }
 
   // lager en metode for logout
   logout() {
     localStorage.removeItem('token');
-    console.log('logged out')
+    console.log('logged out');
   }
 
 }

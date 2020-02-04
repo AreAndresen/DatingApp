@@ -1,12 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using DatingApp.API.Data;
+using DatingApp.API.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -62,6 +66,22 @@ namespace DatingApp.API
             if (env.IsDevelopment()) //hvis i development mode
             {
                 app.UseDeveloperExceptionPage(); //blir en developer vennlig exception side
+            }
+            else
+            {
+                // context her betyr får http request og response
+                app.UseExceptionHandler(builder => {
+                    builder.Run(async context => {
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                        var error = context.Features.Get<IExceptionHandlerFeature>(); // denne lagrer og tar i mot den spesifikke erroren vi får
+                        if (error != null) {
+
+                            context.Response.AddApplicationError(error.Error.Message); // extender responsen under - kalles extention method
+                            await context.Response.WriteAsync(error.Error.Message); // her skriver vi error msg inn i http responsen
+                        }
+                    });
+                });
             }
             
             // app.UseHttpsRedirection(); // kommentert fordi vi ikke ønsker å bli redirected til noe vi ikke lytter på lenger, iom https://localhost:5001 er fjernet fra tidligere

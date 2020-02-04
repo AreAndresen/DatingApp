@@ -29,6 +29,7 @@ namespace DatingApp.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto) // parameterne returnere egentlig et json serialized object - Må lage DataTransferObject (DTO)
         {
+            
             // validate request
             if (!ModelState.IsValid)
                 return BadRequest(ModelState); //må legge ved denne om [ApiController] er kommentert ut som kontrollerer request
@@ -56,45 +57,46 @@ namespace DatingApp.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
-            var userFromRepo = await _repo.Login(userForLoginDto.Username.ToLower(), userForLoginDto.Password); //sjekker at vi har en bruker og navn og passord matcher den 
 
-            if (userFromRepo == null) //sjekker at det er noe fra repo 
-                return Unauthorized(); //gir bare en default feilmelding uten å gi noen ekstra hint til f.eks en hacker
+                var userFromRepo = await _repo.Login(userForLoginDto.Username.ToLower(), userForLoginDto.Password); //sjekker at vi har en bruker og navn og passord matcher den 
 
-            //Genererer en token som skal returneres til brukeren - token vil inneholder brukerid og brukernavn og info kan legges til, token valideress av server uten db kall
-            var claims = new[]
-            {
+                if (userFromRepo == null) //sjekker at det er noe fra repo 
+                    return Unauthorized(); //gir bare en default feilmelding uten å gi noen ekstra hint til f.eks en hacker
+
+                //Genererer en token som skal returneres til brukeren - token vil inneholder brukerid og brukernavn og info kan legges til, token valideress av server uten db kall
+                var claims = new[]
+                {
                 new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id.ToString()),
                 new Claim(ClaimTypes.Name, userFromRepo.Username)
-            };
+                };
 
-            //for at Token skal verfisieres må den signeres - trenger også en nøkkel for å signere Token - denne generer vi her - Dette må vi legge til i appsettings.json filen
-            var key = new SymmetricSecurityKey(Encoding.UTF8.
-                GetBytes(_config.GetSection("AppSettings:Token").Value)); // må injecte denne configurasion inn i controlleren på topp
+                //for at Token skal verfisieres må den signeres - trenger også en nøkkel for å signere Token - denne generer vi her - Dette må vi legge til i appsettings.json filen
+                var key = new SymmetricSecurityKey(Encoding.UTF8.
+                    GetBytes(_config.GetSection("AppSettings:Token").Value)); // må injecte denne configurasion inn i controlleren på topp
 
-            // Etter nøkkel må vi har signing credentials - denne tar inn sikkerhetsnøkkelen vi lagde i appsettings.json og algoritmen
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+                // Etter nøkkel må vi har signing credentials - denne tar inn sikkerhetsnøkkelen vi lagde i appsettings.json og algoritmen
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-            // Deretter trenger vi en security token descripter som inneholder signing credentials
-            var tokenDescripter = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(1), // exspire etter en dag 
-                SigningCredentials = creds
-            };
+                // Deretter trenger vi en security token descripter som inneholder signing credentials
+                var tokenDescripter = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.Now.AddDays(1), // exspire etter en dag 
+                    SigningCredentials = creds
+                };
 
-            // deretter Token handler
-            var tokenHandler = new JwtSecurityTokenHandler(); //lager token basert på description
+                // deretter Token handler
+                var tokenHandler = new JwtSecurityTokenHandler(); //lager token basert på description
 
-            // deretter kan vi lage en tokenhandler descriptor
-            var token = tokenHandler.CreateToken(tokenDescripter);
+                // deretter kan vi lage en tokenhandler descriptor
+                var token = tokenHandler.CreateToken(tokenDescripter);
 
-            //returnerer Token som object til klienten - som deretter sendes til klienten
-            return Ok(new {
-                token = tokenHandler.WriteToken(token)
-            });
-
-            
+                //returnerer Token som object til klienten - som deretter sendes til klienten
+                return Ok(new
+                {
+                    token = tokenHandler.WriteToken(token)
+                });   
+                   
         }
     }
 }
